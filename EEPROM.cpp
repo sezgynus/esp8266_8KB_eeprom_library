@@ -68,7 +68,6 @@ void EEPROMClass::begin(size_t size) {
 
   noInterrupts();
   spi_flash_read(_sector * SPI_FLASH_SEC_SIZE, reinterpret_cast<uint32_t*>(_data), _size);
-
   interrupts();
 
   _dirty = false; //make sure dirty is cleared in case begin() is called 2nd+ time
@@ -122,7 +121,7 @@ bool EEPROMClass::commit() {
     return false;
 
   noInterrupts();
-  if(spi_flash_erase_sector(_sector) == SPI_FLASH_RESULT_OK) {
+  if((spi_flash_erase_sector(_sector) == SPI_FLASH_RESULT_OK) && (spi_flash_erase_sector(_sector+1) == SPI_FLASH_RESULT_OK)) {
     if(spi_flash_write(_sector * SPI_FLASH_SEC_SIZE, reinterpret_cast<uint32_t*>(_data), _size) == SPI_FLASH_RESULT_OK) {
       _dirty = false;
       ret = true;
